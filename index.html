@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>Favorite Movies</title>
+	<style type="text/css">
+		button,
+		div,
+		form,
+		input {
+			margin: 10px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container">
+		<h1>Movie Search</h1>
+
+		<form id="movie-form">
+			<label for="movie-input">Add a Movie Bro</label>
+			<input type="text" id="movie-input">
+			<br>
+
+			<!-- Button triggers new movie to be added -->
+			<input id="add-movie" type="submit" value="Add a Movie Bro">
+		</form>
+
+		<!-- Movies will get dumped here -->
+		<div id="movie-view"></div>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script type="text/javascript">
+			// Initial array of movies
+			var movies = ["The Matrix", "The Notebook", "Mr. Nobody", "The Lion King"];
+
+			// Function for displaying movie data
+			function renderButtons() {
+
+				$("#movies-view").empty();
+				// YOUR CODE GOES HERE
+				for (var i = 0; i < movies.length; i++) {
+					var newButton = $("<button>");
+					newButton.addClass("movie-button");
+					newButton.text(movies[i]);
+					newButton.attr("data-label", movies[i]);
+					$("#movies-view").append(newButton);
+				}
+
+			}
+
+			// This function handles events where one button is clicked
+			$("#add-movie").on("click", function (event) {
+
+				event.preventDefault();
+				// YOUR CODE GOES HERE
+				var newMovie = $("#movie-input").val().trim();
+				movies.push(newMovie);
+				// console.log(movies);
+				renderButtons();
+			});
+
+			// $(".movie-button").on("click",function (event) {
+
+			// });
+
+			$(document).on("click", ".movie-button", processMovieName);
+
+			function processMovieName(params) {
+				var movieName = $(this).attr("data-label");
+				console.log(movieName);
+
+				var queryURL = "https://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=xxxxxxxx";
+
+				$.ajax({
+					url: queryURL,
+					method: "GET"
+				}).then(function (response) {
+					// $("#movie-view").text(JSON.stringify(response));
+					console.log(response);
+					// console.log(response.Title);
+					// console.log(response.Year);
+					// console.log(response.Actors);
+
+					$("#movie-view").empty();
+					var movieName = $("<div>");
+					movieName.html("<h1>" + response.Title + "</h1>");
+					$("#movie-view").append(movieName);
+
+					var moviePoster = $("<div>");
+					moviePoster.html("<img src='" + response.Poster + "'>");
+					$("#movie-view").append(moviePoster);
+
+					var movieRating = $("<div>");
+					var ratingString = "";
+
+					for (var i = 0; i < response.Ratings.length; i++) {
+						ratingString += response.Ratings[i].Source;
+						ratingString += ":  ";
+						ratingString += response.Ratings[i].Value;
+						ratingString += "<br>"
+					}
+
+					addMovieInfo("Ratings",ratingString);
+					addMovieInfo("Year",response.Year);
+					addMovieInfo("Actors",response.Actors);
+					addMovieInfo("Direction",response.Director)
+					addMovieInfo("Plot",response.Plot);
+					addMovieInfo("Runtime".response.Runtime);
+
+				});
+
+			}
+			// Calling the renderButtons function to display the initial list of movies
+
+			function addMovieInfo(subHeading, shValue) {
+				var newSubHead = $("<div>");
+				newSubHead.html("<h3>" + subHeading + "</h3>" + shValue);
+				$("#movie-view").append(newSubHead);
+			}
+
+			renderButtons();
+		</script>
+	</div>
+</body>
+
+</html>
